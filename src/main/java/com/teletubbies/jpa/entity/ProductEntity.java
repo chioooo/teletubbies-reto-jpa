@@ -1,5 +1,6 @@
 package com.teletubbies.jpa.entity;
 
+import com.teletubbies.jpa.exception.InsufficientStockException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -34,4 +35,11 @@ public class ProductEntity {
 
     @Column(name = "stock", nullable = false)
     private Integer stock;
+
+    public void decreaseStock(final int quantity) {
+        if (this.stock < quantity) {
+            throw new InsufficientStockException(this.name, quantity, this.stock);
+        }
+        this.stock -= quantity;
+    }
 }

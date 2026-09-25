@@ -68,7 +68,7 @@ Pistas:
 
 > Escribe aquí qué cascada usaron y por qué:
 >
-> _…_
+> _Se uso cascadeType.ALL. porque los renglones dependen totalmente del pedido orders al guardar el pedido con orderRepository.save() _
 
 ### 2. Repositorio
 
