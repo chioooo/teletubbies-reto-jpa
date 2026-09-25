@@ -6,24 +6,70 @@ El reto está en [EXERCISES.md](EXERCISES.md).
 
 ## Requisitos
 
-- Java 21
-- Docker Desktop (abierto)
+- **Docker Desktop**, abierto. La base de datos siempre corre en Docker.
+- **Java 21**, para correr las pruebas y la API en local.
+- **`make`, opcional.** Todo se puede hacer sin él; abajo vienen los comandos de las dos formas.
 
-No necesitas Maven ni `make`: el proyecto trae el **Maven wrapper** (`mvnw` / `mvnw.cmd`), que descarga Maven solo la primera vez.
+No necesitas instalar Maven: el proyecto trae el **Maven wrapper** (`mvnw` / `mvnw.cmd`), que lo descarga solo la primera vez.
+
+## Dos formas de correr la API
+
+La base siempre va en Docker. La API la puedes correr como prefieras:
+
+| | API en local | API en Docker |
+|---|---|---|
+| Qué necesitas | Java 21 | Solo Docker |
+| Después de cambiar código | Detén la API y vuelve a correrla | Vuelve a correr el comando de levantar (reconstruye la imagen) |
+| Dónde ves las consultas SQL | En la consola donde la corriste | Con el comando de logs |
+| Depurar con breakpoints | Sí, desde IntelliJ | No |
+
+**Para el reto recomendamos la API en local**: los cambios se prueban más rápido y ves las consultas SQL directo en la consola.
+
+Las dos usan el puerto **8080**: no las corras al mismo tiempo.
 
 ## Comandos
 
 Todos se corren desde la raíz del proyecto.
 
-| Qué hace | Windows (PowerShell / CMD) | Mac / Linux / Git Bash |
-|---|---|---|
-| Levantar la base (MySQL, puerto 3308) | `docker compose up -d` | `docker compose up -d` |
-| Correr las pruebas | `.\mvnw.cmd test` | `./mvnw test` |
-| Levantar la app (http://localhost:8080) | `.\mvnw.cmd spring-boot:run` | `./mvnw spring-boot:run` |
-| Consola de MySQL | `docker exec -it store-jpa-db mysql -uiwa -pdemo store` | igual |
-| Borrar la base y empezar de cero | `docker compose down -v` y luego `docker compose up -d` | igual |
+### Base de datos
 
-También puedes correr las pruebas y la app desde IntelliJ con el botón ▶. Si IntelliJ marca en rojo las clases de `api` o `model`, corre una vez `.\mvnw.cmd compile` (las genera) y recarga el proyecto de Maven.
+| Qué hace | Con make | Sin make |
+|---|---|---|
+| Levantar la base (MySQL, puerto 3308) | `make db-up` | `docker compose up -d` |
+| Consola de MySQL | `make db-shell` | `docker exec -it store-jpa-db mysql -uiwa -pdemo store` |
+
+### API en local
+
+| Qué hace | Con make | Sin make · Windows | Sin make · Mac / Linux / Git Bash |
+|---|---|---|---|
+| Correr las pruebas | `make test` | `.\mvnw.cmd test` | `./mvnw test` |
+| Levantar la API (http://localhost:8080) | `make run` | `.\mvnw.cmd spring-boot:run` | `./mvnw spring-boot:run` |
+| Compilar sin correr pruebas | `make build` | `.\mvnw.cmd clean package -DskipTests` | `./mvnw clean package -DskipTests` |
+| Regenerar el código del contrato OpenAPI | `make openapi-generate` | `.\mvnw.cmd generate-sources` | `./mvnw generate-sources` |
+
+Para detener la API local: `Ctrl+C` en su consola.
+
+También puedes correr las pruebas y la API desde IntelliJ con el botón ▶. Si IntelliJ marca en rojo las clases de `api` o `model`, corre una vez la compilación (`make build` o `.\mvnw.cmd compile`), que las genera, y recarga el proyecto de Maven.
+
+### API en Docker
+
+| Qué hace | Con make | Sin make |
+|---|---|---|
+| Levantar la base y la API (http://localhost:8080) | `make api-up` | `docker compose --profile api up -d --build` |
+| Ver el log de la API, con las consultas SQL | `make api-logs` | `docker compose logs -f api` |
+
+La primera vez tarda unos minutos: compila el proyecto dentro de Docker. Para salir del log: `Ctrl+C` (la API sigue corriendo).
+
+### Detener y empezar de cero
+
+| Qué hace | Con make | Sin make |
+|---|---|---|
+| Detener todo (conserva los datos) | `make down` | `docker compose --profile api down` |
+| Borrar la base y volver a los datos iniciales | `make reset` | `docker compose --profile api down -v` y luego `docker compose up -d` |
+
+### ¿`make` en Windows?
+
+Con `make` instalado (por ejemplo, `choco install make`), los comandos funcionan igual desde PowerShell, CMD o Git Bash. Si `make` no está o algo falla, usa la columna "Sin make": cada target del `Makefile` es exactamente ese comando.
 
 ## Estructura
 
@@ -38,13 +84,16 @@ src/main/java/com/teletubbies/jpa/
 ├── repository/           repositorios Spring Data
 └── service/              reglas de negocio
 src/main/resources/db/migration/   migraciones Flyway (V1 y V2)
+compose.yaml              la base y, con --profile api, la API
+Dockerfile                imagen de la API
+Makefile                  atajos de los comandos de arriba
 ```
 
 **Flyway es dueño del esquema**: las entidades solo lo reflejan (`ddl-auto: validate`).
 
 ## Ver la API
 
-Con la app corriendo:
+Con la API corriendo, en local o en Docker:
 
 - Swagger UI: <http://localhost:8080/swagger-ui/index.html>
 - Peticiones de ejemplo: [docs/peticiones.http](docs/peticiones.http)

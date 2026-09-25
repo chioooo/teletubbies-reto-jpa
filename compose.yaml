@@ -1,10 +1,12 @@
-# Base de datos del reto. Desde la raíz del proyecto:
+# Desde la raíz del proyecto:
 #
-#   docker compose up -d      levanta MySQL en el puerto 3308
-#   docker compose down -v    la detiene y la borra (se pierden los datos)
+#   docker compose up -d                          solo la base (MySQL, puerto 3308)
+#   docker compose --profile api up -d --build    la base y la API (puerto 8080)
+#   docker compose --profile api down             detiene todo (conserva los datos)
+#   docker compose --profile api down -v          detiene todo y borra la base
 #
-# Es otro contenedor y otro puerto que la práctica SQL (3307), para que las
-# migraciones de esa semana no interfieran.
+# La base usa otro contenedor y otro puerto que la práctica SQL (3307), para que
+# las migraciones de esa semana no interfieran.
 
 name: store-jpa
 
@@ -29,6 +31,21 @@ services:
       interval: 5s
       timeout: 5s
       retries: 20
+
+  # Opcional: solo se levanta con --profile api
+  api:
+    profiles: ["api"]
+    build: .
+    container_name: store-jpa-api
+    environment:
+      # Dentro de la red de Docker la base se llama "db" y escucha en 3306
+      DB_HOST: db
+      DB_PORT: 3306
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   db_data:

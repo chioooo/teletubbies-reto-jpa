@@ -79,6 +79,8 @@
 	</dependencies>
 
 	<build>
+		<!-- Nombre fijo del jar: el Dockerfile copia target/store-api.jar -->
+		<finalName>store-api</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

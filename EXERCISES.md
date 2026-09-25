@@ -6,19 +6,16 @@ La semana pasada trabajaste la tienda con SQL. Hoy la misma base se trabaja desd
 
 ## Preparación
 
-Con Docker Desktop abierto, desde la raíz del proyecto:
+Con Docker Desktop abierto, desde la raíz del proyecto, levanta la base y corre las pruebas:
 
-```bash
-docker compose up -d
-```
-
-Y después corre las pruebas:
-
-| Windows | Mac / Git Bash |
-|---|---|
-| `.\mvnw.cmd test` | `./mvnw test` |
+| Paso | Con make | Sin make · Windows | Sin make · Mac / Git Bash |
+|---|---|---|---|
+| Levantar la base | `make db-up` | `docker compose up -d` | `docker compose up -d` |
+| Correr las pruebas | `make test` | `.\mvnw.cmd test` | `./mvnw test` |
 
 Deben salir 2 pruebas en verde y 1 omitida (*skipped*): esa se activa en el reto 4. Si algo falla, avisa antes de empezar.
+
+Para probar la API puedes correrla en local o en Docker; los comandos están en el [README](README.md#comandos). Recomendamos en local: ves las consultas SQL directo en la consola, y las necesitas en el reto 5.
 
 ## Esquema
 
@@ -119,7 +116,7 @@ En `OrderServiceTest`:
 
 1. Implementa `OrderService.listOrders()`: todos los pedidos con el nombre de su cliente (`OrderSummaryResource`).
    El método ya trae `@Transactional(readOnly = true)`; su comentario explica por qué hace falta.
-2. Con la app corriendo, llama `GET /api/v1/orders` (está en `docs/peticiones.http`) y **cuenta las consultas** que aparecen en la consola (`Hibernate: select ...`).
+2. Con la app corriendo, llama `GET /api/v1/orders` (está en `docs/peticiones.http`) y **cuenta las consultas** que aparecen en la consola (`Hibernate: select ...`). Si la API corre en Docker, las ves con `make api-logs` o `docker compose logs -f api`.
 3. Corrígelo con `JOIN FETCH` o `@EntityGraph` en `OrderRepository`.
 4. Vuelve a contar.
 

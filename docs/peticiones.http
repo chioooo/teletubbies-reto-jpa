@@ -2,7 +2,7 @@
 ### IntelliJ IDEA y VS Code (extensión REST Client) las ejecutan con un clic.
 ###
 ### Ojo: el POST válido SÍ guarda el pedido y descuenta stock en la base.
-### Para volver a los datos iniciales: docker compose down -v && docker compose up -d
+### Para volver a los datos iniciales: make reset (o la tabla "Detener y empezar de cero" del README)
 
 ### Listar pedidos -> 200   (revisa la consola: ¿cuántas consultas salen?)
 GET http://localhost:8080/api/v1/orders
