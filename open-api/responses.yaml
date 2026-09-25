@@ -1,0 +1,56 @@
+openapi: 3.0.3
+
+# El envoltorio HTTP de cada respuesta: que significa el codigo y que cuerpo trae.
+# La forma de los datos se define en resources.yaml.
+
+components:
+  responses:
+
+    OrderCreatedResponse:
+      description: Pedido creado.
+      content:
+        application/json:
+          schema:
+            $ref: './resources.yaml#/components/schemas/OrderResource'
+
+    OrdersResponse:
+      description: Listado de pedidos. Una lista vacia sigue siendo 200.
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: './resources.yaml#/components/schemas/OrderSummaryResource'
+
+    # === ERRORES ===
+
+    BadRequest:
+      description: |
+        Request mal formado: JSON roto, campo obligatorio ausente o valor fuera de rango.
+      content:
+        application/json:
+          schema:
+            $ref: './resources.yaml#/components/schemas/ErrorResource'
+
+    NotFound:
+      description: El cliente o alguno de los productos no existe.
+      content:
+        application/json:
+          schema:
+            $ref: './resources.yaml#/components/schemas/ErrorResource'
+
+    UnprocessableEntity:
+      description: |
+        El request esta bien formado pero incumple una regla de negocio: no hay stock
+        suficiente de algun producto.
+      content:
+        application/json:
+          schema:
+            $ref: './resources.yaml#/components/schemas/ErrorResource'
+
+    InternalServerError:
+      description: Fallo por razones ajenas al cliente. No se expone el detalle interno.
+      content:
+        application/json:
+          schema:
+            $ref: './resources.yaml#/components/schemas/ErrorResource'

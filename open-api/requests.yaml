@@ -1,0 +1,50 @@
+openapi: 3.0.3
+
+# Lo que ENTRA a la API.
+#
+# Las restricciones de aqui se vuelven anotaciones de Bean Validation en el modelo
+# generado. Validacion de FORMATO va aqui; la regla de NEGOCIO (hay stock suficiente)
+# no se puede expresar y va en el service.
+
+components:
+  schemas:
+
+    CreateOrderRequest:
+      type: object
+      description: Cliente que compra y productos del pedido.
+      required:
+        - customerId
+        - items
+      properties:
+        customerId:
+          type: integer
+          format: int32
+          description: Id del cliente que hace el pedido.
+          example: 1
+          minimum: 1
+        items:
+          type: array
+          description: Productos del pedido, con su cantidad.
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/OrderItemRequest'
+
+    OrderItemRequest:
+      type: object
+      description: Un producto del pedido.
+      required:
+        - productId
+        - quantity
+      properties:
+        productId:
+          type: integer
+          format: int32
+          description: Id del producto.
+          example: 2
+          minimum: 1
+        quantity:
+          type: integer
+          format: int32
+          description: Unidades que se compran.
+          example: 2
+          minimum: 1

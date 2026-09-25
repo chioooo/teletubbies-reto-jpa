@@ -1,0 +1,110 @@
+openapi: 3.0.3
+
+# Lo que SALE de la API. Los schemas terminan en `Resource`.
+# Los enums no se definen aqui: viven en enum.yaml y este archivo solo los referencia.
+
+components:
+  schemas:
+
+    OrderResource:
+      type: object
+      description: Pedido recien creado.
+      required:
+        - id
+        - customerId
+        - orderDate
+        - status
+      properties:
+        id:
+          type: integer
+          format: int32
+          example: 11
+          description: Id del pedido.
+        customerId:
+          type: integer
+          format: int32
+          example: 1
+          description: Id del cliente que hizo el pedido.
+        orderDate:
+          type: string
+          format: date
+          example: '2026-09-25'
+          description: Fecha del pedido.
+        status:
+          $ref: './enum.yaml#/components/schemas/OrderStatus'
+
+    OrderSummaryResource:
+      type: object
+      description: Renglon del listado de pedidos.
+      required:
+        - id
+        - customerName
+        - orderDate
+        - status
+      properties:
+        id:
+          type: integer
+          format: int32
+          example: 1
+          description: Id del pedido.
+        customerName:
+          type: string
+          example: Ana López
+          description: Nombre del cliente que hizo el pedido.
+        orderDate:
+          type: string
+          format: date
+          example: '2025-03-01'
+          description: Fecha del pedido.
+        status:
+          $ref: './enum.yaml#/components/schemas/OrderStatus'
+
+    # === ERRORES ===
+
+    ErrorResource:
+      type: object
+      description: Cuerpo de error de la API, el mismo en todos los endpoints.
+      required:
+        - timestamp
+        - status
+        - code
+        - message
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: Momento en que se genero el error.
+        status:
+          type: integer
+          format: int32
+          example: 422
+          description: Codigo HTTP, repetido en el cuerpo.
+        code:
+          type: string
+          example: INSUFFICIENT_STOCK
+          description: Identificador estable del tipo de error.
+        message:
+          type: string
+          example: "Stock insuficiente de 'Escritorio': se pidieron 999, hay 5"
+          description: Descripcion legible del error.
+        details:
+          type: array
+          description: Un error por campo cuando falla la validacion del request.
+          items:
+            $ref: '#/components/schemas/ErrorDetailResource'
+
+    ErrorDetailResource:
+      type: object
+      description: Un error puntual, atribuido al campo que lo provoco.
+      required:
+        - field
+        - message
+      properties:
+        field:
+          type: string
+          example: items[0].quantity
+          description: Campo de la peticion que no paso la validacion.
+        message:
+          type: string
+          example: debe ser mayor que o igual a 1
+          description: Que se esperaba de ese campo.

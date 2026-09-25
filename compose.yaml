@@ -1,0 +1,34 @@
+# Base de datos del reto. Desde la raíz del proyecto:
+#
+#   docker compose up -d      levanta MySQL en el puerto 3308
+#   docker compose down -v    la detiene y la borra (se pierden los datos)
+#
+# Es otro contenedor y otro puerto que la práctica SQL (3307), para que las
+# migraciones de esa semana no interfieran.
+
+name: store-jpa
+
+services:
+  db:
+    image: mysql:8.4
+    container_name: store-jpa-db
+    environment:
+      MYSQL_DATABASE: store
+      MYSQL_USER: iwa
+      MYSQL_PASSWORD: demo
+      MYSQL_ROOT_PASSWORD: root_password
+    restart: always
+    ports:
+      - "3308:3306"
+    volumes:
+      - ./docker/mysql/my.cnf:/etc/mysql/my.cnf
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/1-init.sql
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  db_data:

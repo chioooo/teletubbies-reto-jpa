@@ -1,0 +1,65 @@
+openapi: 3.0.3
+
+# Solo las rutas. Ningun schema se define aqui: todo va por $ref a requests.yaml
+# (lo que entra), resources.yaml (lo que sale) y responses.yaml (el envoltorio HTTP).
+#
+# El `tags` de cada operacion decide el nombre de la interfaz Java generada:
+# tag `order` -> OrderApi / OrderApiDelegate.
+
+info:
+  title: Store Orders API
+  description: |
+    Reto JPA. El contrato ya esta completo: el trabajo del reto es la persistencia.
+  version: 0.0.1
+
+servers:
+  - url: 'http://localhost:{port}'
+    description: local
+    variables:
+      port:
+        default: '8080'
+
+tags:
+  - name: order
+    description: Pedidos de los clientes de la tienda
+
+paths:
+
+  '/api/v1/orders':
+    post:
+      tags:
+        - order
+      summary: Crea un pedido
+      description: |
+        Crea un pedido PENDING para el cliente, descuenta el stock de cada producto y
+        guarda el precio actual de cada uno. Si algun producto no tiene stock suficiente,
+        no se guarda nada.
+      operationId: createOrder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './requests.yaml#/components/schemas/CreateOrderRequest'
+      responses:
+        "201":
+          $ref: './responses.yaml#/components/responses/OrderCreatedResponse'
+        "400":
+          $ref: './responses.yaml#/components/responses/BadRequest'
+        "404":
+          $ref: './responses.yaml#/components/responses/NotFound'
+        "422":
+          $ref: './responses.yaml#/components/responses/UnprocessableEntity'
+        "500":
+          $ref: './responses.yaml#/components/responses/InternalServerError'
+
+    get:
+      tags:
+        - order
+      summary: Lista los pedidos con el nombre de su cliente
+      operationId: listOrders
+      responses:
+        "200":
+          $ref: './responses.yaml#/components/responses/OrdersResponse'
+        "500":
+          $ref: './responses.yaml#/components/responses/InternalServerError'

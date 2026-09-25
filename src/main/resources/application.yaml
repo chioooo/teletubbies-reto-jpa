@@ -1,0 +1,33 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  application:
+    name: store-api
+  datasource:
+    # MySQL del compose.yaml (puerto publicado 3308)
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3308}/${DB_SCHEMA:store}?useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Mexico_City
+    username: ${DB_USERNAME:iwa}
+    password: ${DB_PASSWORD:demo}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    open-in-view: false
+    # Imprime cada consulta que genera Hibernate (sirve para contar consultas)
+    show-sql: true
+    hibernate:
+      # Flyway es dueño del esquema: Hibernate solo valida que las entidades coincidan
+      ddl-auto: validate
+  flyway:
+    locations:
+      - classpath:db/migration
+    baseline-version: 000
+    baseline-on-migrate: true
+    # Falla si un archivo de migración no sigue el formato V<n>__<descripcion>.sql
+    validate-migration-naming: true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    user: ${MIGRATION_MYSQL_USER:iwa}
+    password: ${MIGRATION_MYSQL_PASSWORD:demo}
+
+logging:
+  level:
+    root: INFO

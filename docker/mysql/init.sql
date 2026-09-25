@@ -1,0 +1,8 @@
+CREATE
+  DATABASE IF NOT EXISTS store;
+
+CREATE
+  USER IF NOT EXISTS 'iwa' @'%' IDENTIFIED BY 'demo';
+
+GRANT ALL PRIVILEGES ON
+*.* TO 'iwa' @'%';

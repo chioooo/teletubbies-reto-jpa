@@ -1,0 +1,22 @@
+openapi: 3.0.3
+
+# Los catalogos de valores fijos.
+#
+# OrderStatus esta mapeado en el pom.xml (importMapping + schemaMapping) a la clase
+# com.teletubbies.jpa.enums.OrderStatus: el generador no crea una propia. Este archivo
+# y esa clase tienen que decir lo mismo.
+
+components:
+  schemas:
+
+    OrderStatus:
+      type: string
+      description: |
+        Estado de un pedido. En la columna orders.status se guarda en español
+        (PENDIENTE, ENVIADO, ENTREGADO, CANCELADO); el converter hace la traduccion.
+      example: PENDING
+      enum:
+        - PENDING
+        - SHIPPED
+        - DELIVERED
+        - CANCELLED
