@@ -8,7 +8,6 @@ import com.teletubbies.jpa.model.CreateOrderRequest;
 import com.teletubbies.jpa.model.OrderItemRequest;
 import com.teletubbies.jpa.repository.ProductRepository;
 import java.util.List;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -44,6 +43,33 @@ class OrderServiceTest {
     }
 
     // TODO reto 4: escribe aquí la prueba "crear un pedido descuenta el stock"
+    @Test
+    void createOrderDecreasesStock() {
+
+        // GIVEN
+        final int stockBefore = productRepository
+                .findById(MOUSE_ID)
+                .orElseThrow()
+                .getStock();
+
+        final var request = new CreateOrderRequest(
+                ANA_LOPEZ_ID,
+                List.of(
+                        new OrderItemRequest(MOUSE_ID, 2)
+                )
+        );
+
+        // WHEN
+        orderService.createOrder(request);
+
+        // THEN
+        final int stockAfter = productRepository
+                .findById(MOUSE_ID)
+                .orElseThrow()
+                .getStock();
+
+        assertThat(stockAfter).isEqualTo(stockBefore - 2);
+    }
 
     /**
      * Un pedido con un producto sin stock no deja nada guardado.
@@ -54,7 +80,6 @@ class OrderServiceTest {
      * lecturas de abajo van directo a la base: si el rollback funciona, el stock no cambió.
      */
     @Test
-    @Disabled("Quita esta línea cuando termines el reto 3")
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void createOrderWithoutStockSavesNothing() {
         final int mouseStockBefore = productRepository.findById(MOUSE_ID).orElseThrow().getStock();
@@ -68,5 +93,27 @@ class OrderServiceTest {
 
         assertThat(productRepository.findById(MOUSE_ID).orElseThrow().getStock()).isEqualTo(mouseStockBefore);
         assertThat(productRepository.findById(DESK_ID).orElseThrow().getStock()).isEqualTo(deskStockBefore);
+    }
+
+    @Test
+    void listOrdersReturnsCustomerName() {
+
+        // GIVEN
+        orderService.createOrder(
+                new CreateOrderRequest(
+                        ANA_LOPEZ_ID,
+                        List.of(
+                                new OrderItemRequest(MOUSE_ID, 1)
+                        )
+                )
+        );
+
+        // WHEN
+        final var orders = orderService.listOrders();
+
+        // THEN
+        assertThat(orders).isNotEmpty();
+        assertThat(orders)
+                .anyMatch(order -> order.getCustomerName().equals("Ana López"));
     }
 }

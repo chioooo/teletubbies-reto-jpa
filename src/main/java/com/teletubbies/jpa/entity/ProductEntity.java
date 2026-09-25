@@ -34,4 +34,8 @@ public class ProductEntity {
 
     @Column(name = "stock", nullable = false)
     private Integer stock;
+
+    public void decreaseStock(final Integer quantity) {
+        this.stock -= quantity;
+    }
 }
